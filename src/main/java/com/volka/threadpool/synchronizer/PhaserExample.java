@@ -51,5 +51,21 @@ public class PhaserExample {
         latch.await();
 
         assertEquals(1, phaser.getPhase()); //첫 phase가 시작되고 끝이 남
+
+        System.out.println("==============");
+
+        latch = new CountDownLatch(2);
+
+        for (int i = 0; i < 2; i++) {
+            new Thread(run(phaser, latch)).start();
+        }
+
+        System.out.println(Thread.currentThread().getName() + " arrived");
+        phaser.arriveAndAwaitAdvance();
+        System.out.println("main await end");
+
+        assertEquals(2, phaser.getPhase());
+
+        latch.await();
     }
 }
