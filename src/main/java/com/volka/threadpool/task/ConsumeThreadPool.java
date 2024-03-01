@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @RequiredArgsConstructor
@@ -17,6 +18,6 @@ public class ConsumeThreadPool {
 
     @PostConstruct
     private void init() {
-//        executorService = Executors.
+        executorService = Executors.newFixedThreadPool(10);
     }
 }

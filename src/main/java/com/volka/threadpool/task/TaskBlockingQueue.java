@@ -1,7 +1,6 @@
 package com.volka.threadpool.task;
 
 import com.volka.threadpool.dto.Producer;
-import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
