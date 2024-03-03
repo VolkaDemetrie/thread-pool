@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/some")
+@RequestMapping("/pay")
 @RestController
 public class PayController {
 
     private final PayService payService;
 
     @GetMapping("/{id}")
-    public Account getAccount(@PathVariable long id) {
+    public Account getAccount(@PathVariable("id") long id) {
         return payService.getAccount(id);
     }
 

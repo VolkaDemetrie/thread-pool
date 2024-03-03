@@ -12,17 +12,22 @@ import java.util.Random;
 @Component
 public class Database {
     private Map<Long, Account> table = new HashMap<>();
-    public Account findById(long id) {
-        try {
-            Thread.sleep((long) Math.random() * 100L);
-            return table.get(id);
-        } catch (InterruptedException e) {
-            log.error("find ERROR :: ", e);
-            throw new RuntimeException("ERROR");
-        }
+
+    public Account findById(long id) throws InterruptedException {
+        Thread.sleep((long) Math.random() * 100L);
+        return table.get(id) == null ? new Account(id) : table.get(id);
     }
 
-    public Account change(Account account) {
-        return table.putIfAbsent(account.getId(), account);
+    public Account change(Account account) throws InterruptedException {
+        Thread.sleep((long) Math.random() * 100L);
+
+        if (table.get(account.getId()) == null) {
+            table.put(account.getId(), account);
+        } else {
+            table.replace(account.getId(), account);
+        }
+
+
+        return account;
     }
 }

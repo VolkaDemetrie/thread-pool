@@ -1,0 +1,19 @@
+GET localhost:8090/pay/852844853422508055
+
+###
+POST http://localhost:8090/pay
+Content-Type: application/json
+
+{
+  "id": 852844853422508055,
+  "amount": 3000
+}
+
+###
+PATCH http://localhost:8090/pay
+Content-Type: application/json
+
+{
+  "id": 852844853422508055,
+  "amount": 3000
+}

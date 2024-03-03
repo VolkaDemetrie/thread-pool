@@ -2,13 +2,14 @@ package com.volka.threadpool.service;
 
 import com.volka.threadpool.database.Database;
 import com.volka.threadpool.dto.Account;
-import com.volka.threadpool.task.TaskBlockingQueue;
+import com.volka.threadpool.exception.BizException;
+import com.volka.threadpool.task.TaskThreadPool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -18,29 +19,76 @@ public class PayService {
     public static final String RESPONSE_FAIL = "FAIL";
     public static final String RESPONSE_SUCCESS = "SUCCESS";
 
+    private final TaskThreadPool taskThreadPool;
+
     private final Database database;
-    private final TaskBlockingQueue taskBlockingQueue;
 
     public Account getAccount(long id) {
-        return database.findById(id);
+        try {
+            CompletableFuture<Account> result = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return database.findById(id);
+                } catch (InterruptedException e) {
+                    throw new BizException("FAIL", e);
+                }
+            }, taskThreadPool.getThreadPool());
+
+            return result.get();
+        } catch (Exception e) {
+            throw new BizException("FAIL", e);
+        }
     }
 
 
-    @Transactional
     public Account deposit(Account account) {
-        return null;
+        try {
+            CompletableFuture<Account> result = CompletableFuture.supplyAsync(() -> {
+                try {
+                    Account record = database.findById(account.getId());
+                    account.setAmount(record.getAmount() + account.getAmount());
+                    account.setMillis(System.currentTimeMillis());
+                    account.setNano(System.nanoTime());
+
+                    return database.change(account);
+
+                } catch (InterruptedException e) {
+                    throw new BizException("FAIL", e);
+                }
+            }, taskThreadPool.getThreadPool());
+
+            return result.get();
+
+        } catch (Exception e) {
+            throw new BizException("FAIL", e);
+        }
     }
 
-    @Transactional
     public Account withDraw(Account account) {
-        return null;
+        try {
+            CompletableFuture<Account> result = CompletableFuture.supplyAsync(() -> {
+                try {
+                    Account record = database.findById(account.getId());
+                    account.setAmount(record.getAmount() - account.getAmount());
+                    account.setMillis(System.currentTimeMillis());
+                    account.setNano(System.nanoTime());
+
+                    return database.change(account);
+
+                } catch (InterruptedException e) {
+                    throw new BizException("FAIL", e);
+                }
+            }, taskThreadPool.getThreadPool());
+
+            return result.get();
+
+        } catch (Exception e) {
+            throw new BizException("FAIL", e);
+        }
     }
 
 
-    @Transactional
     public String deleteSome(long id) {
         try {
-
             return RESPONSE_SUCCESS;
         } catch (Exception e) {
             log.error("ERROR :: {}", e);
