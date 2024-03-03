@@ -2,6 +2,8 @@ package com.volka.threadpool.returnable;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 import java.util.Locale;
@@ -123,5 +125,37 @@ public class CompletableFutureExample {
                 );
 
         result.get().forEach(System.out::println);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void exceptionally(boolean doThrow) throws InterruptedException, ExecutionException {
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            if (doThrow) {
+                throw new IllegalArgumentException("Invalid Argument");
+            }
+
+            return "Thread :: " + Thread.currentThread().getName();
+        }).exceptionally(e -> {
+            return e.getMessage();
+        });
+
+        System.out.println(future.get());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void handle(boolean doThrow) throws InterruptedException, ExecutionException {
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            if (doThrow) {
+                throw new IllegalArgumentException("Invalid Argument");
+            }
+
+            return "Thread :: " + Thread.currentThread().getName();
+        }).handle((result, e) -> {
+            return e == null ? result : e.getMessage();
+        });
+
+        System.out.println(future.get());
     }
 }
